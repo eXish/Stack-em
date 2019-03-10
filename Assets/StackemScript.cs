@@ -62,6 +62,7 @@ public class StackemScript : MonoBehaviour {
 
     void Awake()
     {
+	    moduleId = moduleIdCounter++;
         for (int i = 0; i < selRot.Length; i++)
         {
             selRot[i] = Random.Range(.5f, 1f) * (Random.Range(0, 2) * 2 - 1);

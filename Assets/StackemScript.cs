@@ -272,7 +272,7 @@ public class StackemScript : MonoBehaviour {
                 solve[i] = false;
             }
         }
-        Debug.LogFormat(@"[Stack'em #{0}] Your entered sums are: {1}", moduleId, InNum.Join(", "));
+        Debug.LogFormat(@"[Stack'em #{0}] Your entered sums are: {1}", moduleId, InNum.Select(x => x.Sum()).Join(", "));
         for (int i = 0; i < 4; i++)
         {
             if (solve[i])

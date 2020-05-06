@@ -7,7 +7,8 @@ using KModkit;
 using UnityEngine;
 using Random = UnityEngine.Random;
 
-public class StackemScript : MonoBehaviour {
+public class StackemScript : MonoBehaviour
+{
 
     public KMAudio Audio;
     public KMBombInfo BombInfo;
@@ -62,7 +63,7 @@ public class StackemScript : MonoBehaviour {
 
     void Awake()
     {
-	    moduleId = moduleIdCounter++;
+        moduleId = moduleIdCounter++;
         for (int i = 0; i < selRot.Length; i++)
         {
             selRot[i] = Random.Range(.5f, 1f) * (Random.Range(0, 2) * 2 - 1);
@@ -101,7 +102,7 @@ public class StackemScript : MonoBehaviour {
 
     private KMSelectable.OnInteractHandler InputClicked(int pos)
     {
-        return delegate()
+        return delegate ()
         {
             if (SubAc)
                 return false;
@@ -120,7 +121,7 @@ public class StackemScript : MonoBehaviour {
                 Destroy(SpawnedCubes[pos][CubesSpawned[pos]]);
 
                 SpawnedCubes[pos].Remove(SpawnedCubes[pos][CubesSpawned[pos]]);
-            
+
                 InNum[pos].RemoveAt(CubesSpawned[pos]);
 
                 CubesSpawned[pos] -= 1;
@@ -145,8 +146,8 @@ public class StackemScript : MonoBehaviour {
             inputLP.y += CubeSpawnedLS.y + 0.0045f;
             Input[pos].GetComponent<Transform>().localPosition = inputLP;
 
-            InNum[pos].Add((int)CubeValues[curPos]);
-            
+            InNum[pos].Add((int) CubeValues[curPos]);
+
             return false;
         };
     }
@@ -177,7 +178,8 @@ public class StackemScript : MonoBehaviour {
         };
     }
 
-    void Start () {
+    void Start()
+    {
 
         string ser = SertoInt(BombInfo.GetSerialNumber());
         Debug.LogFormat(@"[Stack'em #{0}] Converted SN: {1}", moduleId, ser);
@@ -188,7 +190,7 @@ public class StackemScript : MonoBehaviour {
         var result = ser2
         .Select((ch, ix) => new { Character = ch, Index = ix })
         .OrderBy(inf => inf.Character)
-        .Select((inf, ix) => new { inf.Index, Character = (char)(ix + '1') })
+        .Select((inf, ix) => new { inf.Index, Character = (char) (ix + '1') })
         .OrderBy(inf => inf.Index)
         .Select(inf => inf.Character)
         .Join("");
@@ -202,7 +204,8 @@ public class StackemScript : MonoBehaviour {
         GetExp();
     }
 
-	void Update () {
+    void Update()
+    {
 
         for (int i = 0; i < selRot.Length; i++)
         {
@@ -212,7 +215,7 @@ public class StackemScript : MonoBehaviour {
             SelRot.y += selRot[i];
             Selectors[i].GetComponent<Transform>().localEulerAngles = SelRot;
         }
-	}
+    }
 
     private string SertoInt(string s)
     {
@@ -262,7 +265,7 @@ public class StackemScript : MonoBehaviour {
             yield return new WaitForSeconds(2f);
             loop[i] = false;
             iNumberTxT[i].text = InNum[i].Sum().ToString();
-            if(ExpNum[i] == InNum[i].Sum())
+            if (ExpNum[i] == InNum[i].Sum())
             {
                 iNumberTxT[i].color = new Color32(0, 255, 0, 255);
                 solve[i] = true;
@@ -282,7 +285,7 @@ public class StackemScript : MonoBehaviour {
             BombModule.HandleStrike();
             ResetModule();
             yield break;
-            
+
         }
         Debug.LogFormat(@"[Stack'em #{0}] Solve!", moduleId);
         BombModule.HandlePass();
@@ -298,7 +301,7 @@ public class StackemScript : MonoBehaviour {
             loop[i] = true;
             solve[i] = false;
             ExpNum[i] = 0;
-            while(CubesSpawned[i] != -1)
+            while (CubesSpawned[i] != -1)
             {
                 Input[i].GetComponent<Transform>().localPosition = SpawnedCubes[i][CubesSpawned[i]].GetComponent<Transform>().localPosition;
 
@@ -314,7 +317,7 @@ public class StackemScript : MonoBehaviour {
 
         curPos = 0;
         curSel = -1;
-        
+
         Debug.LogFormat(@"[Stack'em #{0}] You striked, resetting module.", moduleId);
         GetExp();
 
@@ -336,12 +339,12 @@ public class StackemScript : MonoBehaviour {
     private readonly string TwitchHelpMessage = "!{0} red 2 4, b 1 4 [put 4 red cubes in slot 2 and 4 blue cubes in slot 1] | !{0} delete 3 2, del 2 5 [delete 2 cubes from slot 3 and 5 cubes from slot 2] | !{0} submit";
 #pragma warning restore 0414
 
-    private IEnumerable<KMSelectable> ProcessTwitchCommand(string command)
+    private IEnumerator ProcessTwitchCommand(string command)
     {
-        var selectables = new List<KMSelectable>();
         Match m;
         if ((m = Regex.Match(command, @"^\s*((?<color>b|g|o|m|r|y|blue|green|orange|magenta|red|yellow|del|delete|erase)\s+(?<slot>[1-4])\s+(?<num>[1-5])\,*\s*)*$", RegexOptions.IgnoreCase | RegexOptions.CultureInvariant)).Success)
         {
+            var selectables = new List<KMSelectable>();
             for (int i = 0; i < m.Groups["color"].Captures.Count; i++)
             {
                 var color = m.Groups["color"].Captures[i].Value;
@@ -351,21 +354,19 @@ public class StackemScript : MonoBehaviour {
                     selectables.Add(Selectors["bgomry".IndexOf(char.ToLowerInvariant(color[0]))]);
                 var slot = int.Parse(m.Groups["slot"].Captures[i].Value) - 1;
                 var num = int.Parse(m.Groups["num"].Captures[i].Value);
-                
+
                 for (int j = 0; j < num; j++)
                     selectables.Add(Input[slot]);
             }
-            return selectables;
+            yield return null;
+            yield return selectables;
         }
 
-        if ((m = Regex.Match(command, @"^\s*(submit|enter|go|finish|ready)\s*$", RegexOptions.IgnoreCase | RegexOptions.CultureInvariant)).Success)
+        if (Regex.IsMatch(command, @"^\s*(submit|enter|go|finish|ready)\s*$", RegexOptions.IgnoreCase | RegexOptions.CultureInvariant))
         {
-            selectables.Add(Submit);
-            return selectables;
+            yield return null;
+            yield return Enumerable.Range(0, 4).All(i => ExpNum[i] == InNum[i].Sum()) ? "solve" : "strike";
+            yield return new[] { Submit };
         }
-
-        return null;
-
     }
-
 }

@@ -332,4 +332,40 @@ public class StackemScript : MonoBehaviour {
         return;
     }
 
+#pragma warning disable 0414
+    private readonly string TwitchHelpMessage = "!{0} red 2 4, b 1 4 [put 4 red cubes in slot 2 and 4 blue cubes in slot 1] | !{0} delete 3 2, del 2 5 [delete 2 cubes from slot 3 and 5 cubes from slot 2] | !{0} submit";
+#pragma warning restore 0414
+
+    private IEnumerable<KMSelectable> ProcessTwitchCommand(string command)
+    {
+        var selectables = new List<KMSelectable>();
+        Match m;
+        if ((m = Regex.Match(command, @"^\s*((?<color>b|g|o|m|r|y|blue|green|orange|magenta|red|yellow|del|delete|erase)\s+(?<slot>[1-4])\s+(?<num>[1-5])\,*\s*)*$", RegexOptions.IgnoreCase | RegexOptions.CultureInvariant)).Success)
+        {
+            for (int i = 0; i < m.Groups["color"].Captures.Count; i++)
+            {
+                var color = m.Groups["color"].Captures[i].Value;
+                if (color == "del" || color == "delete" || color == "erase")
+                    selectables.Add(Selectors[6]);
+                else
+                    selectables.Add(Selectors["bgomry".IndexOf(char.ToLowerInvariant(color[0]))]);
+                var slot = int.Parse(m.Groups["slot"].Captures[i].Value) - 1;
+                var num = int.Parse(m.Groups["num"].Captures[i].Value);
+                
+                for (int j = 0; j < num; j++)
+                    selectables.Add(Input[slot]);
+            }
+            return selectables;
+        }
+
+        if ((m = Regex.Match(command, @"^\s*(submit|enter|go|finish|ready)\s*$", RegexOptions.IgnoreCase | RegexOptions.CultureInvariant)).Success)
+        {
+            selectables.Add(Submit);
+            return selectables;
+        }
+
+        return null;
+
+    }
+
 }

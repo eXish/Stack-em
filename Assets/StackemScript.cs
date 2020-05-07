@@ -60,6 +60,7 @@ public class StackemScript : MonoBehaviour
         new List<int>(),
         new List<int>()
     };
+    private bool solveAnimationDone = false;
 
     void Awake()
     {
@@ -146,7 +147,7 @@ public class StackemScript : MonoBehaviour
             inputLP.y += CubeSpawnedLS.y + 0.0045f;
             Input[pos].GetComponent<Transform>().localPosition = inputLP;
 
-            InNum[pos].Add((int) CubeValues[curPos]);
+            InNum[pos].Add((int)CubeValues[curPos]);
 
             return false;
         };
@@ -190,7 +191,7 @@ public class StackemScript : MonoBehaviour
         var result = ser2
         .Select((ch, ix) => new { Character = ch, Index = ix })
         .OrderBy(inf => inf.Character)
-        .Select((inf, ix) => new { inf.Index, Character = (char) (ix + '1') })
+        .Select((inf, ix) => new { inf.Index, Character = (char)(ix + '1') })
         .OrderBy(inf => inf.Index)
         .Select(inf => inf.Character)
         .Join("");
@@ -287,6 +288,7 @@ public class StackemScript : MonoBehaviour
             yield break;
 
         }
+        solveAnimationDone = true;
         Debug.LogFormat(@"[Stack'em #{0}] Solve!", moduleId);
         BombModule.HandlePass();
     }
@@ -362,11 +364,79 @@ public class StackemScript : MonoBehaviour
             yield return selectables;
         }
 
-        if (Regex.IsMatch(command, @"^\s*(submit|enter|go|finish|ready)\s*$", RegexOptions.IgnoreCase | RegexOptions.CultureInvariant))
+        else if (Regex.IsMatch(command, @"^\s*(submit|enter|go|finish|ready)\s*$", RegexOptions.IgnoreCase | RegexOptions.CultureInvariant))
         {
             yield return null;
             yield return Enumerable.Range(0, 4).All(i => ExpNum[i] == InNum[i].Sum()) ? "solve" : "strike";
             yield return new[] { Submit };
         }
+        else
+        {
+            yield return "sendtochaterror Invalid Command";
+            yield break;
+        }
+    }
+
+    IEnumerator TwitchHandleForcedSolve()
+    {
+
+        Debug.LogFormat(@"[Stack'Em #{0}] The module was force solved by TP.", moduleId);
+
+        
+        for (int i = 0; i < 4; i++)
+        {
+            while(InNum[i].Sum() > ExpNum[i])
+            {
+                Selectors[6].OnInteract();
+                yield return new WaitForSeconds(.1f);
+                Input[i].OnInteract();
+                yield return new WaitForSeconds(.1f);
+            }
+            while (ExpNum[i] - InNum[i].Sum() >= 6)
+            {
+                Selectors[Array.IndexOf(CubeValues, 6)].OnInteract();
+                yield return new WaitForSeconds(.1f);
+                Input[i].OnInteract();
+                yield return new WaitForSeconds(.1f);
+            }
+            while (ExpNum[i] - InNum[i].Sum() >= 5)
+            {
+                Selectors[Array.IndexOf(CubeValues, 5)].OnInteract();
+                yield return new WaitForSeconds(.1f);
+                Input[i].OnInteract();
+                yield return new WaitForSeconds(.1f);
+            }
+            while (ExpNum[i] - InNum[i].Sum() >= 4)
+            {
+                Selectors[Array.IndexOf(CubeValues, 4)].OnInteract();
+                yield return new WaitForSeconds(.1f);
+                Input[i].OnInteract();
+                yield return new WaitForSeconds(.1f);
+            }
+            while (ExpNum[i] - InNum[i].Sum() >= 3)
+            {
+                Selectors[Array.IndexOf(CubeValues, 3)].OnInteract();
+                yield return new WaitForSeconds(.1f);
+                Input[i].OnInteract();
+                yield return new WaitForSeconds(.1f);
+            }
+            while (ExpNum[i] - InNum[i].Sum() >= 2)
+            {
+                Selectors[Array.IndexOf(CubeValues, 2)].OnInteract();
+                yield return new WaitForSeconds(.1f);
+                Input[i].OnInteract();
+                yield return new WaitForSeconds(.1f);
+            }
+            while (ExpNum[i] - InNum[i].Sum() >= 1)
+            {
+                Selectors[Array.IndexOf(CubeValues, 1)].OnInteract();
+                yield return new WaitForSeconds(.1f);
+                Input[i].OnInteract();
+                yield return new WaitForSeconds(.1f);
+            }
+        }
+        Submit.OnInteract();
+        while (!solveAnimationDone)
+            yield return true;
     }
 }

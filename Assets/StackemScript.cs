@@ -350,7 +350,7 @@ public class StackemScript : MonoBehaviour
             for (int i = 0; i < m.Groups["color"].Captures.Count; i++)
             {
                 var color = m.Groups["color"].Captures[i].Value;
-                if (color == "del" || color == "delete" || color == "erase")
+                if (color.ToLowerInvariant() == "del" || color.ToLowerInvariant() == "delete" || color.ToLowerInvariant() == "erase")
                     selectables.Add(Selectors[6]);
                 else
                     selectables.Add(Selectors["bgomry".IndexOf(char.ToLowerInvariant(color[0]))]);
@@ -380,7 +380,7 @@ public class StackemScript : MonoBehaviour
     IEnumerator TwitchHandleForcedSolve()
     {
 
-        Debug.LogFormat(@"[Stack'Em #{0}] The module was force solved by TP.", moduleId);
+        Debug.LogFormat(@"[Stack'em #{0}] The module was force solved by TP.", moduleId);
 
         
         for (int i = 0; i < 4; i++)
